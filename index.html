@@ -1,0 +1,136 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Romantic Puzzle Reward</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', Arial, sans-serif;
+      background: linear-gradient(135deg, #fde2e4, #fadadd);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: rgba(255,255,255,0.95);
+      padding: 18px;
+      border-radius: 20px;
+      text-align: center;
+      width: 95%;
+      max-width: 360px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+      color: #6b2d5c;
+    }
+    p { font-size: 0.9rem; color: #555; }
+    .score {
+      margin-top: 10px;
+      font-weight: 600;
+      color: #b83280;
+    }
+    .puzzle {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      margin: 16px auto;
+    }
+    .tile {
+      aspect-ratio: 1 / 1;
+      background-size: 300% 300%;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .tile:active {
+      transform: scale(0.96);
+    }
+    .reward {
+      display: none;
+      margin-top: 15px;
+      animation: fadeIn 0.8s ease;
+    }
+    .reward img {
+      width: 180px;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .heart {
+      color: #e63975;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Solve with Love <span class="heart">♥</span></h1>
+    <p>Complete the picture to unlock something special</p>
+    <div class="score" id="score">Progress: 0%</div><div class="puzzle" id="puzzle"></div>
+
+<div class="reward" id="reward">
+  <h2>🎀 Reward Unlocked</h2>
+  <p>Scan with love</p>
+  <img src="qr-code.png" alt="QR Code" />
+</div>
+
+  </div>  <script>
+    const imageURL = 'puzzle-image.jpg'; // your romantic image
+    const puzzle = document.getElementById('puzzle');
+    const reward = document.getElementById('reward');
+    const scoreDisplay = document.getElementById('score');
+
+    const size = 3;
+    let order = [...Array(size * size).keys()];
+    let selected = null;
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function drawPuzzle() {
+      puzzle.innerHTML = '';
+      order.forEach((pos, index) => {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.style.backgroundImage = `url(${imageURL})`;
+        tile.style.backgroundPosition = `${-(pos % size) * 100}% ${-Math.floor(pos / size) * 100}%`;
+        tile.dataset.index = index;
+        tile.addEventListener('click', () => selectTile(index));
+        puzzle.appendChild(tile);
+      });
+      updateScore();
+    }
+
+    function selectTile(index) {
+      if (selected === null) {
+        selected = index;
+      } else {
+        [order[selected], order[index]] = [order[index], order[selected]];
+        selected = null;
+        drawPuzzle();
+      }
+    }
+
+    function updateScore() {
+      let correct = 0;
+      order.forEach((val, i) => { if (val === i) correct++; });
+      const percent = Math.round((correct / order.length) * 100);
+      scoreDisplay.textContent = `Progress: ${percent}%`;
+      if (percent === 100) reward.style.display = 'block';
+    }
+
+    shuffle(order);
+    drawPuzzle();
+  </script></body>
+</html>
